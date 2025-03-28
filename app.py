@@ -4,7 +4,7 @@ from flask import redirect, render_template, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import db
-
+import threads
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
@@ -75,9 +75,7 @@ def new_thread():
     parent_or_origin = request.form["parent_or_origin"]
     user_id = session["user_id"]
 
-    sql = """INSERT INTO threads (title, content, stock_market, sector, parent_or_origin, user_id)
-                VALUES (?, ?, ?, ?, ?, ?)""" 
-    db.execute(sql, [title, content, stock_market, sector, parent_or_origin, user_id])
+    threads.add_thread(title, content, stock_market, sector, parent_or_origin, user_id)
 
     return redirect("/")
 
