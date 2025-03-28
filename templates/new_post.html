@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Uusi lanka</title>
+</head>
+  <h2>Uusi lanka</h2>
+
+  <form action="/new_thread" method="post">
+    <p>
+      Otsikko: <br />
+      <input type="text" name="title" />
+    </p>
+    <p>
+      Viesti: <br />
+      <textarea name="content" rows="5" cols="40"></textarea>
+    </p>
+    <p>
+        Pörssi: <br />
+        <input type="text" name="stock_market" size="9" />
+    </p>
+    <p>
+        Sektori: <br />
+        <input type="text" name="sector" size="15" />
+    </p>
+    <p>
+        Kotimaa/emoyhtiö: <br />
+        <input type="text" name="parent_or_origin" size="9" />
+    </p>
+    <input type="submit" value="Luo lanka" />
+  </form>
+
+</html>
