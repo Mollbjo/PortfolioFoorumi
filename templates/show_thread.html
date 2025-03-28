@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ thread.title }}</title>
+</head>
+
+<body>
+    <h2>{{ thread.title }}</h2>
+    <p>
+        {{ thread.content }}
+    </p>
+    <p>
+       Markkina: {{ thread.stock_market }}
+    </p>
+    <p>
+       Sektori: {{ thread.sector }}
+    </p>
+    <p>
+       Kotimaa/emoyhtiö: {{ thread.parent_or_origin }}
+    </p>
+    <p>
+       Kirjoittaja: {{ thread.username }}
+    </p>
+    <p>
+        <a href="/">Takaisin</a>
+    </p>
+</body>
+
+</html>

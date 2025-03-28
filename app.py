@@ -11,7 +11,8 @@ app.secret_key=config.secret_key
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    all_threads = threads.get_threads()
+    return render_template("index.html", threads=all_threads)
 
 @app.route("/register")
 def register():
@@ -79,3 +80,8 @@ def new_thread():
 
     return redirect("/")
 
+
+@app.route("/thread/<int:thread_id>")
+def show_thread(thread_id):
+    thread = threads.get_thread(thread_id)
+    return render_template("show_thread.html", thread=thread)
