@@ -85,3 +85,21 @@ def new_thread():
 def show_thread(thread_id):
     thread = threads.get_thread(thread_id)
     return render_template("show_thread.html", thread=thread)
+
+@app.route("/edit_thread/<int:thread_id>")
+def edit_thread(thread_id):
+    thread=threads.get_thread(thread_id)
+    return render_template("edit_thread.html", thread=thread)
+
+@app.route("/update_thread", methods=["POST"])
+def update_thread():
+    thread_id=request.form["thread_id"]
+    title = request.form["title"]
+    content = request.form["content"]
+    stock_market = request.form["stock_market"]
+    sector = request.form["sector"]
+    parent_or_origin = request.form["parent_or_origin"]
+
+    threads.update_thread(thread_id, title, content, stock_market, sector, parent_or_origin)
+
+    return redirect("/thread/" + str(thread_id))

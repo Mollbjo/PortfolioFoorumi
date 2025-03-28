@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Langan muokkaus</title>
+</head>
+  <h2>Langan muokkaus</h2>
+
+  <form action="/update_thread" method="post">
+    <p>
+      Otsikko: <br />
+      <input type="text" name="title" value="{{ thread.title }}"/>
+    </p>
+    <p>
+      Viesti: <br />
+      <textarea name="content" rows="5" cols="40">{{ thread.content }}</textarea>
+    </p>
+    <p>
+        Pörssi: <br />
+        <input type="text" name="stock_market" size="9" value="{{ thread.stock_market }}"/>
+    </p>
+    <p>
+        Sektori: <br />
+        <input type="text" name="sector" size="15" value="{{ thread.sector }}"/>
+    </p>
+    <p>
+        Kotimaa/emoyhtiö: <br />
+        <input type="text" name="parent_or_origin" size="9" value="{{ thread.parent_or_origin }}"/>
+    </p>
+    <input type="hidden" name="thread_id" value="{{ thread.id }}" />
+    <input type="submit" value="Päivitä lanka" />
+  </form>
+
+</html>
