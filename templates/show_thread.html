@@ -10,6 +10,7 @@
     {% if session.user_id == thread.user_id %}
     <p>
         <a href="/edit_thread/{{ thread.id }}">Muokkaa</a>
+        <a href="/remove_thread/{{ thread.id }}">Poista</a>
     </p>
     {% endif %}
     <p>

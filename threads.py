@@ -35,3 +35,9 @@ def update_thread(thread_id, title, content, stock_market, sector, parent_or_ori
                             WHERE id= ?"""
     
     db.execute(sql, [title, content, stock_market, sector, parent_or_origin, thread_id])
+
+
+def remove_thread(thread_id):
+    sql = "DELETE FROM threads WHERE id = ?"
+    
+    db.execute(sql, [thread_id])

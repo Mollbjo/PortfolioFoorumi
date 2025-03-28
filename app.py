@@ -103,3 +103,18 @@ def update_thread():
     threads.update_thread(thread_id, title, content, stock_market, sector, parent_or_origin)
 
     return redirect("/thread/" + str(thread_id))
+
+@app.route("/remove_thread/<int:thread_id>", methods=["GET", "POST"])
+def remove_thread(thread_id):
+    if request.method == "GET":
+        thread=threads.get_thread(thread_id)
+        return render_template("remove_thread.html", thread=thread)
+    
+    if request.method == "POST":
+        if "remove" in request.form:
+            threads.remove_thread(thread_id)
+            return redirect("/")
+        else:
+            return redirect("/thread/" + str(thread_id))
+
+
