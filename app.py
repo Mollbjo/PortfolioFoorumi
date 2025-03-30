@@ -118,3 +118,13 @@ def remove_thread(thread_id):
             return redirect("/thread/" + str(thread_id))
 
 
+
+@app.route("/find_thread")
+def find_thread():
+    query = request.args.get("query")
+    if query:
+        results = threads.find_thread(query)
+    else:
+        query=""
+        results=[]
+    return render_template("find_thread.html",query=query, results=results)

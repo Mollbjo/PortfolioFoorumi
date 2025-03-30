@@ -41,3 +41,10 @@ def remove_thread(thread_id):
     sql = "DELETE FROM threads WHERE id = ?"
     
     db.execute(sql, [thread_id])
+
+def find_thread(query):
+    sql = """SELECT id, title
+                FROM threads
+                WHERE title LIKE ? OR content LIKE ?
+                ORDER BY id DESC"""
+    return db.query(sql, ["%" + query + "%", "%" + query + "%"])
