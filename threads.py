@@ -38,9 +38,10 @@ def update_thread(thread_id, title, content, stock_market, sector, parent_or_ori
 
 
 def remove_thread(thread_id):
-    sql = "DELETE FROM threads WHERE id = ?"
-    
-    db.execute(sql, [thread_id])
+    sql_messages = "DELETE FROM messages WHERE thread_id =?"
+    db.execute(sql_messages, [thread_id])
+    sql_threads = "DELETE FROM threads WHERE id = ?"
+    db.execute(sql_threads, [thread_id])
 
 def find_thread(query):
     sql = """SELECT id, title
@@ -48,3 +49,16 @@ def find_thread(query):
                 WHERE title LIKE ? OR content LIKE ?
                 ORDER BY id DESC"""
     return db.query(sql, ["%" + query + "%", "%" + query + "%"])
+
+
+def add_message(content, user_id, thread_id):
+    sql="""INSERT INTO messages (content, sent_at, user_id, thread_id)
+            VALUES (?, datetime("now"), ?, ?)"""
+    db.execute(sql, [content, user_id, thread_id])
+
+def get_messages(thread_id):
+    sql="""SELECT messages.id, messages.content, messages.sent_at, users.username
+            FROM messages, users
+            WHERE messages.user_id = users.id AND messages.thread_id = ? 
+            ORDER BY messages.sent_at DESC"""
+    return db.query(sql, [thread_id])

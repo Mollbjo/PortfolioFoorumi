@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+  <title>{{ user.username }}-Profiili</title>
+</head>
+
+<body>
+    <h1>{{ user.username }}-Profiili</h1>
+
+    <p>
+        Lankoja julkaistu: {{ thread_count }}
+        Kommentteja lisätty: {{ message_count }}
+    </p>
+
+    <h2>Viimeisimmät langat</h2>
+    <ul>
+        {% for thread in threads %}
+            <li><a href="/thread/{{ thread.id }}">{{ thread.title}}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Viimeisimmät kommentit</h2>
+    <ul>
+        {% for message in messages %}
+            <li>
+                {{ message.content }}
+                (Langassa <a href="/thread/{{ message.thread_id}}">{{ message.thread_title }}</a>,
+                {{ message.sent_at }})
+
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="/">Palaa takaisin</a></p>
+</body>
+
+</html>

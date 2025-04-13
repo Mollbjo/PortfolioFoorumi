@@ -6,14 +6,24 @@
 </head>
   <h2>Uusi lanka</h2>
 
+{% with messages=get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <ul>
+      {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+{% endwith %}
+
   <form action="/new_thread" method="post">
     <p>
       Otsikko: <br />
-      <input type="text" name="title" />
+      <input type="text" name="title" required />
     </p>
     <p>
       Viesti: <br />
-      <textarea name="content" rows="5" cols="40"></textarea>
+      <textarea name="content" rows="5" cols="40" required></textarea>
     </p>
     <p>
         Pörssi: <br />

@@ -5,6 +5,16 @@
     <title>{{ thread.title }}</title>
 </head>
 
+{% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+
 <body>
     <h2>{{ thread.title }}</h2>
     {% if session.user_id == thread.user_id %}
@@ -26,8 +36,28 @@
        Kotimaa/emoyhtiö: {{ thread.parent_or_origin }}
     </p>
     <p>
-       Kirjoittaja: {{ thread.username }}
+       Kirjoittaja: <a href="/user/{{ thread.user_id }}">{{ thread.username }}</a>
     </p>
+
+    <h2>Kommentit</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message.username }} ({{ message.sent_at }}): {{ message.content }}</p>
+        {% endfor %}
+    {% else %}
+        <p>Langalla ei ole vielä kommentteja</p>
+    {% endif %}
+
+    {% if session.user_id %}
+        <h2>Lisää kommentti</h2>
+        <form action="/thread/{{ thread.id }}/add_message" method="post">
+            <textarea name="content" rows="5" cols="50" required></textarea>
+            <br>
+            <input type="submit" value="Kommentoi">
+        </form>
+    {% else %}
+        <p><a href="/login">kirjaudu sisään</a> kommentoidaksesi.</p>
+    {% endif %}
     <p>
         <a href="/">Takaisin</a>
     </p>
