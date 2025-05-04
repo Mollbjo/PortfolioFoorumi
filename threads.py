@@ -68,6 +68,8 @@ def update_thread(thread_id, title, content, parent_or_origin, classes):
 
 
 def remove_thread(thread_id):
+    sql_images = "DELETE FROM images WHERE thread_id = ?"
+    db.execute(sql_images, [thread_id])
     sql_classes = "DELETE FROM thread_classes WHERE thread_id = ?"
     db.execute(sql_classes, [thread_id])
     sql_messages = "DELETE FROM messages WHERE thread_id =?"
@@ -111,4 +113,3 @@ def get_image(image_id):
 def remove_image(thread_id, image_id):
     sql = "DELETE FROM images WHERE id = ? AND thread_id = ?"
     db.execute(sql, [image_id, thread_id])
-    
