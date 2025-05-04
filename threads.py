@@ -42,8 +42,8 @@ def get_thread(thread_id):
                     threads.content,  
                     threads.parent_or_origin, 
                     users.id user_id, 
-                    users.username
-                    COALESCE ((SELECT SUM(vote) FROM votes WHERE cotes.thread_id = threads.id), 0) as vote_count
+                    users.username,
+                    COALESCE ((SELECT SUM(vote) FROM votes WHERE votes.thread_id = threads.id), 0) as vote_count
                     FROM threads JOIN users ON threads.user_id = users.id
                     WHERE threads.id = ?"""
     
@@ -126,7 +126,7 @@ def remove_image(thread_id, image_id):
     db.execute(sql, [image_id, thread_id])
 
 def add_vote(user_id, thread_id, vote):
-    sql = "INSERT OR REPLACE INTO votes (user_d, thread_id, vote) VALUES (?,?,?)"
+    sql = "INSERT OR REPLACE INTO votes (user_id, thread_id, vote) VALUES (?,?,?)"
     db.execute(sql, [user_id, thread_id, vote])
 
 def get_user_vote(user_id, thread_id):

@@ -4,6 +4,7 @@
 <head>
     <title>Langan muokkaus</title>
 </head>
+<body>
   <h2>Langan muokkaus</h2>
 
 {% with messages=get_flashed_messages(with_categories=true) %}
@@ -48,5 +49,5 @@
     <input type="hidden" name="thread_id" value="{{ thread.id }}" />
     <input type="submit" value="Päivitä lanka" />
   </form>
-
+</body>
 </html>

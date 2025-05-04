@@ -22,18 +22,19 @@
     <p>
         {% if user_vote != 1 %}
         <form action="/thread/{{ thread.id }}/vote" method="post">
-            <input type="hidden" name="csrf_token" value="{{ session.csrf_token" }}>
-            <input type="hidden" name="vote_type" value="1">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+            <input type="hidden" name="vote" value="1">
             <input type="submit" value="Kannata">
         </form>
         {% endif %}
         {% if user_vote != -1 %}
         <form action="/thread/{{ thread.id }}/vote" method="post">
-            <input type="hidden" name="csrf_token" value="{{ session.csrf_token" }}>
-            <input type="hidden" name="vote_type" value="-1">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+            <input type="hidden" name="vote" value="-1">
             <input type="submit" value="Vastusta">
         </form>
         {% endif %}
+    {% endif %}
     </p>
     {% if session.user_id == thread.user_id %}
     <p>

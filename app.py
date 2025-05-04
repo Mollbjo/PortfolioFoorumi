@@ -258,6 +258,8 @@ def update_thread():
     if len(title) > 50 or len(content) > 1000 or len(parent_or_origin) > 20:
         abort(403)
 
+    all_classes = threads.get_all_classes()
+
     classes = []
     for entry in request.form.getlist("classes"):
         if entry:
@@ -266,7 +268,7 @@ def update_thread():
                 abort(403)
             if parts[1] not in all_classes[parts[0]]:
                 abort(403)
-            classes.append(parts[0], parts[1])
+            classes.append((parts[0], parts[1]))
 
     threads.update_thread(thread_id, title, content, parent_or_origin, classes)
 
@@ -355,11 +357,11 @@ def remove_images():
 @app.route("/thread/<int:thread_id>/vote", methods=["POST"])
 def vote(thread_id):
     check_login()
-    check_csfr()
+    check_csrf()
     thread = threads.get_thread(thread_id)
     if not thread:
         abort(404)
-    vote_type = request.form("vote")
+    vote_type = request.form["vote"]
     if vote_type not in ["1", "-1"]:
         abort(403)
     user_id = session["user_id"]
