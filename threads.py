@@ -43,15 +43,22 @@ def get_thread(thread_id):
                     threads.parent_or_origin, 
                     users.id user_id, 
                     users.username
-        FROM threads, users
-        WHERE threads.user_id = users.id AND 
-            threads.id = ?"""
+                    COALESCE ((SELECT SUM(vote) FROM votes WHERE cotes.thread_id = threads.id), 0) as vote_count
+                    FROM threads JOIN users ON threads.user_id = users.id
+                    WHERE threads.id = ?"""
     
     result = db.query(sql, [thread_id])
-    if result:
-        return result[0]
-    else:
-        None
+    return result[0] if result else None
+
+def get_top_threads(limit=10):
+    sql = """SELECT threads.id, threads.title, users.id user_id, users.username,
+                COALESCE(SUM(votes.vote),0) as vote_count
+                FROM threads JOIN users ON threads.user_id = users.id
+                LEFT JOIN votes ON threads.id = votes.thread_id
+                GROUP BY threads.id
+                ORDER BY vote_count DESC, threads.id DESC
+                LIMIT ?"""
+    return db.query(sql, [limit])
 
 def update_thread(thread_id, title, content, parent_or_origin, classes):
     sql = """UPDATE threads SET title = ?,
@@ -70,6 +77,8 @@ def update_thread(thread_id, title, content, parent_or_origin, classes):
 
 
 def remove_thread(thread_id):
+    sql_votes = "DELETE FROM votes WHERE thread_id = ?"
+    db.execute(sql_votes, [thread_id])
     sql_images = "DELETE FROM images WHERE thread_id = ?"
     db.execute(sql_images, [thread_id])
     sql_classes = "DELETE FROM thread_classes WHERE thread_id = ?"
@@ -115,3 +124,12 @@ def get_image(image_id):
 def remove_image(thread_id, image_id):
     sql = "DELETE FROM images WHERE id = ? AND thread_id = ?"
     db.execute(sql, [image_id, thread_id])
+
+def add_vote(user_id, thread_id, vote):
+    sql = "INSERT OR REPLACE INTO votes (user_d, thread_id, vote) VALUES (?,?,?)"
+    db.execute(sql, [user_id, thread_id, vote])
+
+def get_user_vote(user_id, thread_id):
+    sql = "SELECT vote FROM votes WHERE user_id = ? AND thread_id = ?"
+    result = db.query(sql, [user_id, thread_id])
+    return result[0]["vote"] if result else None

@@ -17,6 +17,24 @@
 
 <body>
     <h2>{{ thread.title }}</h2>
+    <p>Äänet: {{ thread.vote_count }}</p>
+    {% if session.user_id %}
+    <p>
+        {% if user_vote != 1 %}
+        <form action="/thread/{{ thread.id }}/vote" method="post">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token" }}>
+            <input type="hidden" name="vote_type" value="1">
+            <input type="submit" value="Kannata">
+        </form>
+        {% endif %}
+        {% if user_vote != -1 %}
+        <form action="/thread/{{ thread.id }}/vote" method="post">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token" }}>
+            <input type="hidden" name="vote_type" value="-1">
+            <input type="submit" value="Vastusta">
+        </form>
+        {% endif %}
+    </p>
     {% if session.user_id == thread.user_id %}
     <p>
         <a href="/edit_thread/{{ thread.id }}">Muokkaa</a>
@@ -59,9 +77,9 @@
     {% if session.user_id %}
         <h2>Lisää kommentti</h2>
         <form action="/thread/{{ thread.id }}/add_message" method="post">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
             <textarea name="content" rows="5" cols="50" required></textarea>
             <br>
-            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
             <input type="submit" value="Kommentoi">
         </form>
     {% else %}

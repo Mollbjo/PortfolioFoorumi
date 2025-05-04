@@ -39,3 +39,11 @@ CREATE TABLE images (
     thread_id INTEGER REFERENCES threads,
     image BLOB
 );
+
+CREATE TABLE votes (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER REFERENCES users,
+    thread_id INTEGER REFERENCES threads,
+    vote INTEGER,
+    UNIQUE(user_id, thread_id) 
+);

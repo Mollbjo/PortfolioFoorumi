@@ -25,13 +25,14 @@ def check_csrf():
 
 @app.route("/")
 def index():
+    top_threads = threads.get_top_threads(10)
     all_threads = threads.get_threads()
     if "user_id" in session:
         user_id = session["user_id"]
         user = session["username"]
-        return render_template("index.html", threads=all_threads, user_id=user_id, user=user)
+        return render_template("index.html", top_threads=top_threads, threads=all_threads, user_id=user_id, user=user)
     
-    return render_template("index.html", threads=all_threads)
+    return render_template("index.html", top_threads=top_threads, threads=all_threads)
 
 @app.route("/register")
 def register():
@@ -149,13 +150,18 @@ def new_thread():
 
 @app.route("/thread/<int:thread_id>")
 def show_thread(thread_id):
+    if "user_id" in session:
+        user_id = session["user_id"]
+    else:
+        user_id = None
     thread = threads.get_thread(thread_id)
     messages = threads.get_messages(thread_id)
     if not thread:
         abort(404)
     classes = threads.get_classes(thread_id)
     images = threads.get_images(thread_id)
-    return render_template("show_thread.html", thread=thread, messages=messages, classes=classes, images=images)
+    user_vote = threads.get_user_vote(user_id, thread_id)
+    return render_template("show_thread.html", thread=thread, messages=messages, classes=classes, images=images, user_vote=user_vote)
 
 @app.route("/image/<int:image_id>")
 def show_image(image_id):
@@ -312,7 +318,7 @@ def add_message(thread_id):
     else:
         if content == "":
             flash("Kommentti ei voi olla tyhjä", "error")
-            return redirect("/thread" + str(thread_id))
+            return redirect("/thread/" + str(thread_id))
         else:
             threads.add_message(content, user_id, thread_id)
             return redirect("/thread/" + str(thread_id))
@@ -345,3 +351,18 @@ def remove_images():
     for image_id in request.form.getlist("image_id"):
         threads.remove_image(thread_id, image_id)
     return redirect("/images/" + str(thread_id))
+
+@app.route("/thread/<int:thread_id>/vote", methods=["POST"])
+def vote(thread_id):
+    check_login()
+    check_csfr()
+    thread = threads.get_thread(thread_id)
+    if not thread:
+        abort(404)
+    vote_type = request.form("vote")
+    if vote_type not in ["1", "-1"]:
+        abort(403)
+    user_id = session["user_id"]
+    threads.add_vote(user_id, thread_id, int(vote_type))
+    return redirect("/thread/" + str(thread_id))
+

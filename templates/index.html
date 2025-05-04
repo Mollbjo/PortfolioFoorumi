@@ -34,7 +34,17 @@
         <a href="/find_thread">Etsi lanka</a>
     </p>
 
-    <h1>Langat</h1>
+    <h1>Suosituimmat langat</h1>
+    <ul>
+        {% for thread in top_threads %}
+        <div class="thread">
+            <a href="/thread/{{ thread.id }}">{{ thread.title }}</a> (Äänet: {{ thread.vote_count }}) <br />
+            Langan luoja: <a href="/user/{{ thread.user_id }}">{{ thread.username }}</a> <br />
+        </div>
+        {% endfor %}
+    </ul>
+
+    <h1>Kaikki langat</h1>
     <ul>
         {% for thread in threads %}
         <div class="thread">
