@@ -24,7 +24,11 @@ def get_thread(thread_id):
         WHERE threads.user_id = users.id AND 
             threads.id = ?"""
     
-    return db.query(sql, [thread_id])[0]
+    result = db.query(sql, [thread_id])
+    if result:
+        return result[0]
+    else:
+        None
 
 def update_thread(thread_id, title, content, stock_market, sector, parent_or_origin):
     sql = """UPDATE threads SET title = ?,

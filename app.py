@@ -116,11 +116,15 @@ def new_thread():
 def show_thread(thread_id):
     thread = threads.get_thread(thread_id)
     messages = threads.get_messages(thread_id)
+    if not thread:
+        abort(404)
     return render_template("show_thread.html", thread=thread, messages=messages)
 
 @app.route("/edit_thread/<int:thread_id>")
 def edit_thread(thread_id):
     thread = threads.get_thread(thread_id)
+    if not thread:
+        abort(404)
     if thread["user_id"] != session["user_id"]:
         abort(403)
     return render_template("edit_thread.html", thread=thread)
@@ -129,6 +133,8 @@ def edit_thread(thread_id):
 def update_thread():
     thread_id = request.form["thread_id"]
     thread = threads.get_thread(thread_id)
+    if not thread:
+        abort(404)
     if thread["user_id"] != session["user_id"]:
         abort(403)
 
@@ -145,6 +151,9 @@ def update_thread():
 @app.route("/remove_thread/<int:thread_id>", methods=["GET", "POST"])
 def remove_thread(thread_id):
     thread=threads.get_thread(thread_id)
+
+    if not thread:
+        abort(404)
 
     if thread["user_id"] != session["user_id"]:
         abort(403)
