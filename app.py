@@ -82,20 +82,27 @@ def login():
             flash("VIRHE: Käyttäjätunnusta ei ole olemassa")
             return redirect("/login")
         
-
+def check_login():
+    if "user_id" not in session:
+        abort(403)
     
 @app.route("/logout")
 def logout():
-    del session["user_id"]
-    del session["username"]
+    if "user_id" in session:
+        del session["user_id"]
+        del session["username"]
     return redirect("/")
 
 @app.route("/new_post")
 def new_post():
+    check_login()
+
     return render_template("new_post.html")
     
 @app.route("/new_thread", methods=["POST"])
 def new_thread():
+    check_login()
+
     title = request.form["title"]
     content = request.form["content"]
     stock_market = request.form["stock_market"]
@@ -122,6 +129,8 @@ def show_thread(thread_id):
 
 @app.route("/edit_thread/<int:thread_id>")
 def edit_thread(thread_id):
+    check_login()
+
     thread = threads.get_thread(thread_id)
     if not thread:
         abort(404)
@@ -131,6 +140,8 @@ def edit_thread(thread_id):
 
 @app.route("/update_thread", methods=["POST"])
 def update_thread():
+    check_login()
+
     thread_id = request.form["thread_id"]
     thread = threads.get_thread(thread_id)
     if not thread:
@@ -151,6 +162,8 @@ def update_thread():
 @app.route("/remove_thread/<int:thread_id>", methods=["GET", "POST"])
 def remove_thread(thread_id):
     thread=threads.get_thread(thread_id)
+
+    check_login()
 
     if not thread:
         abort(404)
