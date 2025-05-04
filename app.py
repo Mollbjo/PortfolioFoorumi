@@ -100,10 +100,16 @@ def new_thread():
     parent_or_origin = request.form["parent_or_origin"]
     user_id = session["user_id"]
 
+    all_classes = threads.get_all_classes()
+
     classes = []
     for entry in request.form.getlist("classes"):
         if entry:
             parts = entry.split(":")
+            if parts[0] not in all_classes:
+                abort(403)
+            if parts[1] not in all_classes[parts[0]]:
+                abort(403)
             classes.append((parts[0], parts[1]))
 
 
@@ -174,7 +180,11 @@ def update_thread():
     for entry in request.form.getlist("classes"):
         if entry:
             parts = entry.split(":")
-            classes.append((parts[0], parts[1]))
+            if parts[0] not in all_classes:
+                abort(403)
+            if parts[1] not in all_classes[parts[0]]:
+                abort(403)
+            classes.append(parts[0], parts[1])
 
     threads.update_thread(thread_id, title, content, parent_or_origin, classes)
 

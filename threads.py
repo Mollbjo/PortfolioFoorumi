@@ -12,6 +12,8 @@ def get_all_classes():
     return classes
 
 def add_thread(title, content, classes, parent_or_origin, user_id):
+    all_classes = get_all_classes()
+
     sql = """INSERT INTO threads (title, content, parent_or_origin, user_id)
             VALUES (?, ?, ?, ?)""" 
     
@@ -66,6 +68,8 @@ def update_thread(thread_id, title, content, parent_or_origin, classes):
 
 
 def remove_thread(thread_id):
+    sql_classes = "DELETE FROM thread_classes WHERE thread_id = ?"
+    db.execute(sql_classes, [thread_id])
     sql_messages = "DELETE FROM messages WHERE thread_id =?"
     db.execute(sql_messages, [thread_id])
     sql_threads = "DELETE FROM threads WHERE id = ?"
