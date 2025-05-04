@@ -18,12 +18,12 @@
 
   <form action="/new_thread" method="post">
     <p>
-      Otsikko: <br />
-      <input type="text" name="title" required maxlength="50"/>
+      <label for="title">Otsikko:</label> <br />
+      <input type="text" name="title" id="title" required maxlength="50"/>
     </p>
     <p>
-      Viesti: <br />
-      <textarea name="content" rows="5" cols="40" required maxlength="1000"></textarea>
+      <label for="content">Viesti:</label> <br />
+      <textarea name="content" id="content" rows="5" cols="40" required maxlength="1000"></textarea>
     </p>
     {% for class in classes %}
     <p>
@@ -37,8 +37,8 @@
     </p>
     {% endfor %}
     <p>
-        Kotimaa/emoyhtiö: <br />
-        <input type="text" name="parent_or_origin" size="9" maxlength="20"/>
+      <label for="parent_or_origin">Kotimaa/Emoyhtiö:</label> <br />
+        <input type="text" name="parent_or_origin" id="parent_or_origin" size="9" maxlength="20"/>
     </p>
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" value="Luo lanka" />
