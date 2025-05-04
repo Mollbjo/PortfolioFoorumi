@@ -26,16 +26,21 @@ def create():
     if password1!=password2:
         flash("VIRHE: Salasanat eivät täsmää", "error")
         return redirect("/register")
+
+    if len(password1) < 8 or len(password2) < 8:
+        abort(403)
     
     if password1 == "" and password2 == "":
-        flash("VIRHE: Syötä salasana")
+        flash("VIRHE: Syötä salasana", "error")
         return redirect("/register")
 
     password_hash=generate_password_hash(password1)
 
     if username == "":
-        flash("VIRHE: Syötä käyttäjätunnus")
+        flash("VIRHE: Syötä käyttäjätunnus", "error")
         return redirect("/register")
+    if len(username) > 25:
+        abort(403)
     try:
         sql="INSERT INTO users (username, password_hash) VALUES (?, ?)"
         db.execute(sql, [username, password_hash])
