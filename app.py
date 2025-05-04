@@ -6,9 +6,16 @@ import db
 import threads
 import users
 import secrets
+import markupsafe
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
+
+@app.template_filter()
+def show_lines(content):
+    content = str(markupsafe.escape(content))
+    content = content.replace("\n", "<br />")
+    return markupsafe.Markup(content)
 
 def check_csrf():
     if "csrf_token" not in request.form:
