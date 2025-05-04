@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask
-from flask import redirect, render_template, request, session, flash
+from flask import abort, redirect, render_template, request, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import db
@@ -26,8 +26,16 @@ def create():
     if password1!=password2:
         flash("VIRHE: Salasanat eivät täsmää", "error")
         return redirect("/register")
+    
+    if password1 == "" and password2 == "":
+        flash("VIRHE: Syötä salasana")
+        return redirect("/register")
+
     password_hash=generate_password_hash(password1)
 
+    if username == "":
+        flash("VIRHE: Syötä käyttäjätunnus")
+        return redirect("/register")
     try:
         sql="INSERT INTO users (username, password_hash) VALUES (?, ?)"
         db.execute(sql, [username, password_hash])
@@ -48,23 +56,33 @@ def login():
         username=request.form["username"]
         password=request.form["password"]
 
-        if username == "":
-            flash("VIRHE: Syötä käyttäjätunnus", "error")
-            return redirect("/login")
-        else:
-            sql="SELECT id, password_hash FROM users WHERE username=?"
-            result=db.query(sql, [username])[0]
-            user_id=result["id"]
-            password_hash=result["password_hash"]
+        sql_username="SELECT * FROM users WHERE username = ?"
+        result_username=db.query(sql_username, [username])
 
-        if check_password_hash(password_hash, password):
-            session["user_id"]=user_id
-            session["username"]=username
-            flash("Kirjauduttu onnistuneesti", "success")
-            return redirect("/")
+        if result_username:
+
+            if username == "":
+                flash("VIRHE: Syötä käyttäjätunnus", "error")
+                return redirect("/login")
+            else:
+                sql="SELECT id, password_hash FROM users WHERE username=?"
+                result=db.query(sql, [username])[0]
+                user_id=result["id"]
+                password_hash=result["password_hash"]
+
+            if check_password_hash(password_hash, password):
+                session["user_id"]=user_id
+                session["username"]=username
+                flash("Kirjauduttu onnistuneesti", "success")
+                return redirect("/")
+            else:
+                flash("VIRHE: väärä käyttäjätunnus tai salasana", "error")
+                return redirect("/login")
         else:
-            flash("VIRHE: väärä käyttäjätunnus tai salasana", "error")
+            flash("VIRHE: Käyttäjätunnusta ei ole olemassa")
             return redirect("/login")
+        
+
     
 @app.route("/logout")
 def logout():
@@ -102,12 +120,18 @@ def show_thread(thread_id):
 
 @app.route("/edit_thread/<int:thread_id>")
 def edit_thread(thread_id):
-    thread=threads.get_thread(thread_id)
+    thread = threads.get_thread(thread_id)
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
     return render_template("edit_thread.html", thread=thread)
 
 @app.route("/update_thread", methods=["POST"])
 def update_thread():
-    thread_id=request.form["thread_id"]
+    thread_id = request.form["thread_id"]
+    thread = threads.get_thread(thread_id)
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
+
     title = request.form["title"]
     content = request.form["content"]
     stock_market = request.form["stock_market"]
@@ -120,8 +144,12 @@ def update_thread():
 
 @app.route("/remove_thread/<int:thread_id>", methods=["GET", "POST"])
 def remove_thread(thread_id):
+    thread=threads.get_thread(thread_id)
+
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
+
     if request.method == "GET":
-        thread=threads.get_thread(thread_id)
         return render_template("remove_thread.html", thread=thread)
     
     if request.method == "POST":
