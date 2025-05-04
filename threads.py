@@ -30,7 +30,9 @@ def get_classes(thread_id):
     return db.query(sql, [thread_id])
 
 def get_threads():
-    sql = "SELECT id, title FROM threads ORDER BY id DESC"
+    sql = """SELECT threads.id, threads.title, users.id user_id, users.username 
+    FROM threads, users WHERE threads.user_id = users.id 
+    ORDER BY threads.id DESC"""
 
     return db.query(sql)
 

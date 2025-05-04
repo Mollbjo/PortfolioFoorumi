@@ -8,10 +8,15 @@ import users
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
-
+#<a href="/user/{{ user.id }}">{{ user.username }}</a>
 @app.route("/")
 def index():
     all_threads = threads.get_threads()
+    if "user_id" in session:
+        user_id = session["user_id"]
+        user = session["username"]
+        return render_template("index.html", threads=all_threads, user_id=user_id, user=user)
+    
     return render_template("index.html", threads=all_threads)
 
 @app.route("/register")
@@ -317,4 +322,3 @@ def remove_images():
     for image_id in request.form.getlist("image_id"):
         threads.remove_image(thread_id, image_id)
     return redirect("/images/" + str(thread_id))
-    

@@ -4,6 +4,8 @@
 
 <head>
   <title>Portfolio-foorumi</title>
+  <link rel="stylesheet" href="/static/main.css">
+
 </head>
 
 <body>
@@ -11,7 +13,7 @@
 
     {% if session.username %}
     <p>
-        Olet kirjautunut sisään nimellä {{ session.username }}, käyttäjä-id numerosi on {{ session.user_id }}
+        Olet kirjautunut sisään nimellä <a href="/user/{{ user_id }}">{{ user }}</a>, käyttäjä-id numerosi on {{ session.user_id }}
     </p>
     {% endif %}
 
@@ -35,7 +37,10 @@
     <h1>Langat</h1>
     <ul>
         {% for thread in threads %}
-        <li><a href="/thread/{{ thread.id }}">{{ thread.title }}</a></li>
+        <div class="thread">
+        <a href="/thread/{{ thread.id }}">{{ thread.title }}</a> <br />
+        Langan luoja: <a href="/user/{{ thread.user_id }}">{{ thread.username }}</a> <br />
+        </div>
         {% endfor %}
     </ul>
 </body>
