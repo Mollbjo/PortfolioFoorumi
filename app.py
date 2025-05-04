@@ -300,3 +300,21 @@ def user_profile(user_id):
     if not user:
         abort(404)
     return render_template("user_profile.html", user=user, threads=threads, messages=messages, thread_count=thread_count, message_count=message_count)
+
+@app.route("/remove_images", methods=["POST"])
+def remove_images():
+    check_login()
+
+    thread_id=request.form["thread_id"]
+
+    thread=threads.get_thread(thread_id)
+
+    if not thread:
+        abort(404)
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
+
+    for image_id in request.form.getlist("image_id"):
+        threads.remove_image(thread_id, image_id)
+    return redirect("/images/" + str(thread_id))
+    
