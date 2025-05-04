@@ -61,6 +61,7 @@
         <form action="/thread/{{ thread.id }}/add_message" method="post">
             <textarea name="content" rows="5" cols="50" required></textarea>
             <br>
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
             <input type="submit" value="Kommentoi">
         </form>
     {% else %}

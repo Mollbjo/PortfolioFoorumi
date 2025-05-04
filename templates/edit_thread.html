@@ -44,6 +44,7 @@
         Kotimaa/emoyhtiö: <br />
         <input type="text" name="parent_or_origin" size="9" value="{{ thread.parent_or_origin }}" maxlength="20"/>
     </p>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="hidden" name="thread_id" value="{{ thread.id }}" />
     <input type="submit" value="Päivitä lanka" />
   </form>

@@ -9,6 +9,7 @@
   <p>Lanka: {{ thread.title }}</p>
     <p>Haluatko varmasti poistaa tämän langan?</p>
   <form action="/remove_thread/{{ thread.id }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" name="remove" value="Poista lanka">
     <input type="submit" name="back" value="Palaa takaisin">
   </form>

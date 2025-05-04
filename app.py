@@ -5,10 +5,17 @@ import config
 import db
 import threads
 import users
+import secrets
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
-#<a href="/user/{{ user.id }}">{{ user.username }}</a>
+
+def check_csrf():
+    if "csfr_token" not in request.form:
+        abort(403)
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+
 @app.route("/")
 def index():
     all_threads = threads.get_threads()
@@ -72,6 +79,7 @@ def login():
         if user_id:
             session["user_id"] = user_id
             session["username"] = username
+            session["csfr_token"] = secrets.token_hex(16)
             return redirect("/")
         else:
             flash ("VIRHE: Väärä käyttäjätunnus tai salasana", "error")
@@ -99,6 +107,7 @@ def new_post():
 @app.route("/new_thread", methods=["POST"])
 def new_thread():
     check_login()
+    check_csrf()
 
     title = request.form["title"]
     content = request.form["content"]
@@ -169,6 +178,7 @@ def edit_images(thread_id):
 @app.route("/add_image", methods=["POST"])
 def add_image():
     check_login()
+    check_csrf()
 
     thread_id=request.form["thread_id"]
 
@@ -215,6 +225,7 @@ def edit_thread(thread_id):
 @app.route("/update_thread", methods=["POST"])
 def update_thread():
     check_login()
+    check_csrf()
 
     thread_id = request.form["thread_id"]
     thread = threads.get_thread(thread_id)
@@ -264,6 +275,7 @@ def remove_thread(thread_id):
         return render_template("remove_thread.html", thread=thread)
     
     if request.method == "POST":
+        check_csrf()
         if "remove" in request.form:
             threads.remove_thread(thread_id)
             return redirect("/")
@@ -284,6 +296,8 @@ def find_thread():
 
 @app.route("/thread/<int:thread_id>/add_message", methods=["POST"])
 def add_message(thread_id):
+    check_login()
+    check_csrf()
     content = request.form["content"]
     user_id = session["user_id"]
     if "user_id" not in session:
@@ -310,6 +324,7 @@ def user_profile(user_id):
 @app.route("/remove_images", methods=["POST"])
 def remove_images():
     check_login()
+    check_csrf()
 
     thread_id=request.form["thread_id"]
 
