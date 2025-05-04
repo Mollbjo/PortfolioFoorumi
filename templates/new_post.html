@@ -25,14 +25,17 @@
       Viesti: <br />
       <textarea name="content" rows="5" cols="40" required maxlength="1000"></textarea>
     </p>
+    {% for class in classes %}
     <p>
-        Pörssi: <br />
-        <input type="text" name="stock_market" size="9" maxlength="10"/>
+      {{ class }}: <br />
+      <select name="classes">
+        <option value="">(valitse)</option>
+        {% for option in classes[class] %}
+        <option value="{{ class }}:{{ option }}">{{ option }}</option>
+        {% endfor %}
+      </select>
     </p>
-    <p>
-        Sektori: <br />
-        <input type="text" name="sector" size="15" maxlength="20"/>
-    </p>
+    {% endfor %}
     <p>
         Kotimaa/emoyhtiö: <br />
         <input type="text" name="parent_or_origin" size="9" maxlength="20"/>

@@ -87,7 +87,9 @@ def logout():
 def new_post():
     check_login()
 
-    return render_template("new_post.html")
+    classes = threads.get_all_classes()
+
+    return render_template("new_post.html", classes=classes)
     
 @app.route("/new_thread", methods=["POST"])
 def new_thread():
@@ -95,22 +97,27 @@ def new_thread():
 
     title = request.form["title"]
     content = request.form["content"]
-    stock_market = request.form["stock_market"]
-    sector = request.form["sector"]
     parent_or_origin = request.form["parent_or_origin"]
     user_id = session["user_id"]
 
-    if len(title) > 50 or len(content) > 1000 or len(stock_market) > 10 or len(sector) > 20 or len(parent_or_origin) > 20:
+    classes = []
+    for entry in request.form.getlist("classes"):
+        if entry:
+            parts = entry.split(":")
+            classes.append((parts[0], parts[1]))
+
+
+
+    if len(title) > 50 or len(content) > 1000 or len(parent_or_origin) > 20:
         abort(403)
 
     if title == "" or content == "":
         flash("Lisää ensin otsikko sekä sisältö", "error")
         return redirect("/new_thread")
 
-    threads.add_thread(title, content, stock_market, sector, parent_or_origin, user_id)
+    threads.add_thread(title, content, classes, parent_or_origin, user_id)
 
     return redirect("/")
-
 
 @app.route("/thread/<int:thread_id>")
 def show_thread(thread_id):
@@ -118,7 +125,8 @@ def show_thread(thread_id):
     messages = threads.get_messages(thread_id)
     if not thread:
         abort(404)
-    return render_template("show_thread.html", thread=thread, messages=messages)
+    classes = threads.get_classes(thread_id)
+    return render_template("show_thread.html", thread=thread, messages=messages, classes=classes)
 
 @app.route("/edit_thread/<int:thread_id>")
 def edit_thread(thread_id):
@@ -129,7 +137,16 @@ def edit_thread(thread_id):
         abort(404)
     if thread["user_id"] != session["user_id"]:
         abort(403)
-    return render_template("edit_thread.html", thread=thread)
+
+
+    all_classes = threads.get_all_classes()
+    classes={}
+    for thread_class in all_classes:
+        classes[thread_class] = ""
+    for entry in threads.get_classes(thread_id):
+        classes[entry["title"]] = entry["value"] 
+
+    return render_template("edit_thread.html", thread=thread, classes=classes, all_classes=all_classes)
 
 @app.route("/update_thread", methods=["POST"])
 def update_thread():
@@ -144,18 +161,22 @@ def update_thread():
 
     title = request.form["title"]
     content = request.form["content"]
-    stock_market = request.form["stock_market"]
-    sector = request.form["sector"]
     parent_or_origin = request.form["parent_or_origin"]
 
     if title == "" or content == "":
         flash("Lisää ensin otsikko sekä sisältö", "error")
         return redirect("/edit_thread/" + str(thread_id))
 
-    if len(title) > 50 or len(content) > 1000 or len(stock_market) > 10 or len(sector) > 20 or len(parent_or_origin) > 20:
+    if len(title) > 50 or len(content) > 1000 or len(parent_or_origin) > 20:
         abort(403)
 
-    threads.update_thread(thread_id, title, content, stock_market, sector, parent_or_origin)
+    classes = []
+    for entry in request.form.getlist("classes"):
+        if entry:
+            parts = entry.split(":")
+            classes.append((parts[0], parts[1]))
+
+    threads.update_thread(thread_id, title, content, parent_or_origin, classes)
 
     return redirect("/thread/" + str(thread_id))
 

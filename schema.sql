@@ -22,3 +22,17 @@ CREATE TABLE messages (
     thread_id   INTEGER REFERENCES threads
 );
 
+CREATE TABLE classes (
+    id INTEGER PRIMARY KEY,
+    title TEXT,
+    value TEXT
+);
+
+
+CREATE TABLE thread_classes (
+    id INTEGER  PRIMARY KEY,
+    thread_id INTEGER REFERENCES threads,
+    title TEXT,
+    value TEXT
+);
+

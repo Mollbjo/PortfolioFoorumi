@@ -1,10 +1,31 @@
 import db
 
-def add_thread(title, content, stock_market, sector, parent_or_origin, user_id):
-    sql = """INSERT INTO threads (title, content, stock_market, sector, parent_or_origin, user_id)
-            VALUES (?, ?, ?, ?, ?, ?)""" 
+def get_all_classes():
+    sql = "SELECT title, value FROM classes ORDER BY id"
+    result = db.query(sql)
+
+    classes = {}
+    for title, value in result:
+        classes[title] = []
+    for title, value in result:
+        classes[title].append(value)
+    return classes
+
+def add_thread(title, content, classes, parent_or_origin, user_id):
+    sql = """INSERT INTO threads (title, content, parent_or_origin, user_id)
+            VALUES (?, ?, ?, ?)""" 
     
-    db.execute(sql, [title, content, stock_market, sector, parent_or_origin, user_id])
+    db.execute(sql, [title, content, parent_or_origin, user_id])
+
+    thread_id=db.last_insert_id()
+
+    sql = "INSERT INTO thread_classes (thread_id, title, value) VALUES (?, ?, ?)"
+    for title, value in classes:
+        db.execute(sql, [thread_id, title, value])
+
+def get_classes(thread_id):
+    sql = "SELECT title, value FROM thread_classes WHERE thread_id = ?"
+    return db.query(sql, [thread_id])
 
 def get_threads():
     sql = "SELECT id, title FROM threads ORDER BY id DESC"
@@ -14,9 +35,7 @@ def get_threads():
 def get_thread(thread_id):
     sql = """SELECT threads.id, 
                     threads.title, 
-                    threads.content, 
-                    threads.stock_market, 
-                    threads.sector, 
+                    threads.content,  
                     threads.parent_or_origin, 
                     users.id user_id, 
                     users.username
@@ -30,15 +49,20 @@ def get_thread(thread_id):
     else:
         None
 
-def update_thread(thread_id, title, content, stock_market, sector, parent_or_origin):
+def update_thread(thread_id, title, content, parent_or_origin, classes):
     sql = """UPDATE threads SET title = ?,
                                 content = ?,
-                                stock_market = ?,
-                                sector = ?,
                                 parent_or_origin = ?
                             WHERE id= ?"""
     
-    db.execute(sql, [title, content, stock_market, sector, parent_or_origin, thread_id])
+    db.execute(sql, [title, content, parent_or_origin, thread_id])
+
+    sql = "DELETE FROM thread_classes WHERE thread_id = ?"
+    db.execute(sql, [thread_id])
+
+    sql = "INSERT INTO thread_classes (thread_id, title, value) VALUES (?, ?, ?)"
+    for title, value in classes:
+        db.execute(sql, [thread_id, title, value])
 
 
 def remove_thread(thread_id):

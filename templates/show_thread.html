@@ -26,12 +26,16 @@
     <p>
         {{ thread.content }}
     </p>
+    {% if classes %}
     <p>
-       Markkina: {{ thread.stock_market }}
+      Luokat:
+      <ul>
+        {% for class in classes %}
+        <li>{{ class.title }}: {{ class.value }}</li>
+        {% endfor %}
+      </ul>
     </p>
-    <p>
-       Sektori: {{ thread.sector }}
-    </p>
+    {% endif %}
     <p>
        Kotimaa/emoyhtiö: {{ thread.parent_or_origin }}
     </p>
