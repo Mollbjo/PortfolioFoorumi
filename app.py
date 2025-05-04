@@ -128,7 +128,8 @@ def new_thread():
 
     threads.add_thread(title, content, classes, parent_or_origin, user_id)
 
-    return redirect("/")
+    thread_id = db.last_insert_id()
+    return redirect("/thread/" + str(thread_id))
 
 @app.route("/thread/<int:thread_id>")
 def show_thread(thread_id):
