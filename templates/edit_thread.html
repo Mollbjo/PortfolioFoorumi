@@ -6,26 +6,36 @@
 </head>
   <h2>Langan muokkaus</h2>
 
+{% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+
   <form action="/update_thread" method="post">
     <p>
       Otsikko: <br />
-      <input type="text" name="title" value="{{ thread.title }}"/>
+      <input type="text" name="title" value="{{ thread.title }}" required maxlength="50"/>
     </p>
     <p>
       Viesti: <br />
-      <textarea name="content" rows="5" cols="40">{{ thread.content }}</textarea>
+      <textarea name="content" rows="5" cols="40" required maxlength="1000">{{ thread.content }}</textarea>
     </p>
     <p>
         Pörssi: <br />
-        <input type="text" name="stock_market" size="9" value="{{ thread.stock_market }}"/>
+        <input type="text" name="stock_market" size="9" value="{{ thread.stock_market }}" maxlength="10"/>
     </p>
     <p>
         Sektori: <br />
-        <input type="text" name="sector" size="15" value="{{ thread.sector }}"/>
+        <input type="text" name="sector" size="15" value="{{ thread.sector }}" maxlength="20"/>
     </p>
     <p>
         Kotimaa/emoyhtiö: <br />
-        <input type="text" name="parent_or_origin" size="9" value="{{ thread.parent_or_origin }}"/>
+        <input type="text" name="parent_or_origin" size="9" value="{{ thread.parent_or_origin }}" maxlength="20"/>
     </p>
     <input type="hidden" name="thread_id" value="{{ thread.id }}" />
     <input type="submit" value="Päivitä lanka" />

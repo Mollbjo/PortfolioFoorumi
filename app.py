@@ -110,6 +110,9 @@ def new_thread():
     parent_or_origin = request.form["parent_or_origin"]
     user_id = session["user_id"]
 
+    if len(title) > 50 or len(content) > 1000 or len(stock_market) > 10 or len(sector) > 20 or len(parent_or_origin) > 20:
+        abort(403)
+
     if title == "" or content == "":
         flash("Lisää ensin otsikko sekä sisältö", "error")
         return redirect("/new_thread")
@@ -154,6 +157,13 @@ def update_thread():
     stock_market = request.form["stock_market"]
     sector = request.form["sector"]
     parent_or_origin = request.form["parent_or_origin"]
+
+    if title == "" or content == "":
+        flash("Lisää ensin otsikko sekä sisältö", "error")
+        return redirect("/edit_thread/" + str(thread_id))
+
+    if len(title) > 50 or len(content) > 1000 or len(stock_market) > 10 or len(sector) > 20 or len(parent_or_origin) > 20:
+        abort(403)
 
     threads.update_thread(thread_id, title, content, stock_market, sector, parent_or_origin)
 
