@@ -36,3 +36,8 @@ CREATE TABLE thread_classes (
     value TEXT
 );
 
+CREATE TABLE images (
+    id INTEGER PRIMARY KEY,
+    thread_id INTEGER REFERENCES threads,
+    image BLOB
+);

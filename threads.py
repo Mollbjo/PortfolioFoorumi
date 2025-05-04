@@ -94,3 +94,17 @@ def get_messages(thread_id):
             WHERE messages.user_id = users.id AND messages.thread_id = ? 
             ORDER BY messages.sent_at DESC"""
     return db.query(sql, [thread_id])
+
+def get_images(thread_id):
+    sql = "SELECT id FROM images WHERE thread_id = ?"
+    return db.query(sql, [thread_id])
+
+def add_image(thread_id, image):
+    sql = "INSERT INTO images (thread_id, image) VALUES (?, ?)"
+    db.execute(sql, [thread_id, image])
+
+def get_image(image_id):
+    sql = "SELECT image FROM images WHERE id = ?"
+    result = db.query(sql, [image_id])
+    return result[0][0] if result else None
+

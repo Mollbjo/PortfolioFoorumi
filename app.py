@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask
-from flask import abort, redirect, render_template, request, session, flash
+from flask import abort, make_response, redirect, render_template, request, session, flash
 import config
 import db
 import threads
@@ -132,7 +132,59 @@ def show_thread(thread_id):
     if not thread:
         abort(404)
     classes = threads.get_classes(thread_id)
-    return render_template("show_thread.html", thread=thread, messages=messages, classes=classes)
+    images = threads.get_images(thread_id)
+    return render_template("show_thread.html", thread=thread, messages=messages, classes=classes, images=images)
+
+@app.route("/image/<int:image_id>")
+def show_image(image_id):
+    image = threads.get_image(image_id)
+    if not image:
+        abort(404)
+
+    response = make_response(bytes(image))
+    response.headers.set("Content-Type", "image/jpeg")
+    return response
+
+
+@app.route("/images/<int:thread_id>")
+def edit_images(thread_id):
+    check_login()
+
+    thread=threads.get_thread(thread_id)
+    if not thread:
+        abort(404)
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
+
+    images = threads.get_images(thread_id)
+
+    return render_template("images.html", thread=thread, images=images)
+
+@app.route("/add_image", methods=["POST"])
+def add_image():
+    check_login()
+
+    thread_id=request.form["thread_id"]
+
+    thread=threads.get_thread(thread_id)
+
+    if not thread:
+        abort(404)
+    if thread["user_id"] != session["user_id"]:
+        abort(403)
+
+    file = request.files["image"]
+    if not file.filename.endswith(".jpg"):
+        return "VIRHE: väärä tiedostomuoto"
+
+    image = file.read()
+    if len(image) > 100 * 1024:
+        return "VIRHE: liian suuri kuva"
+
+    
+    threads.add_image(thread_id, image)
+    return redirect("/images/" + str(thread_id))
+
 
 @app.route("/edit_thread/<int:thread_id>")
 def edit_thread(thread_id):
