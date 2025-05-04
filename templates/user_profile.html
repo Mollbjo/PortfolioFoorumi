@@ -23,7 +23,7 @@
 
     <h2>Viimeisimmät kommentit</h2>
     <ul>
-        {% for message in messages %}
+        {% for message in messages%}
             <li>
                 {{ message.content }}
                 (Langassa <a href="/thread/{{ message.thread_id}}">{{ message.thread_title }}</a>,

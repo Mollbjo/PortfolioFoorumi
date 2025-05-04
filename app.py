@@ -1,10 +1,10 @@
 import sqlite3
 from flask import Flask
 from flask import abort, redirect, render_template, request, session, flash
-from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import db
 import threads
+import users
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
@@ -34,21 +34,19 @@ def create():
         flash("VIRHE: Syötä salasana", "error")
         return redirect("/register")
 
-    password_hash=generate_password_hash(password1)
-
     if username == "":
         flash("VIRHE: Syötä käyttäjätunnus", "error")
         return redirect("/register")
     if len(username) > 25:
         abort(403)
-    try:
-        sql="INSERT INTO users (username, password_hash) VALUES (?, ?)"
-        db.execute(sql, [username, password_hash])
+
+    try: 
+        users.create_user(username, password1)
     except sqlite3.IntegrityError:
         flash("VIRHE: Käyttäjätunnus on varattu", "error")
         return redirect("/register")
     
-    flash("Käyttäjä tunnus luotu onnistuneesti", "success")
+    flash("Käyttäjä luoto onnistuneesti", "success")
     return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -58,33 +56,20 @@ def login():
 
     if request.method=="POST":
 
-        username=request.form["username"]
-        password=request.form["password"]
+        username = request.form["username"]
+        password = request.form["password"]
 
-        sql_username="SELECT * FROM users WHERE username = ?"
-        result_username=db.query(sql_username, [username])
+        if username == "":
+            flash ("VIRHE: Syötä käyttäjätunnus", "error")
+            return redirect("/login")
 
-        if result_username:
-
-            if username == "":
-                flash("VIRHE: Syötä käyttäjätunnus", "error")
-                return redirect("/login")
-            else:
-                sql="SELECT id, password_hash FROM users WHERE username=?"
-                result=db.query(sql, [username])[0]
-                user_id=result["id"]
-                password_hash=result["password_hash"]
-
-            if check_password_hash(password_hash, password):
-                session["user_id"]=user_id
-                session["username"]=username
-                flash("Kirjauduttu onnistuneesti", "success")
-                return redirect("/")
-            else:
-                flash("VIRHE: väärä käyttäjätunnus tai salasana", "error")
-                return redirect("/login")
+        user_id = users.user_login(username, password)
+        if user_id:
+            session["user_id"] = user_id
+            session["username"] = username
+            return redirect("/")
         else:
-            flash("VIRHE: Käyttäjätunnusta ei ole olemassa")
+            flash ("VIRHE: Väärä käyttäjätunnus tai salasana", "error")
             return redirect("/login")
         
 def check_login():
@@ -224,22 +209,11 @@ def add_message(thread_id):
     
 @app.route("/user/<int:user_id>")
 def user_profile(user_id):
-    sql="SELECT username FROM users WHERE id = ?"
-    user=db.query(sql, [user_id])
-
-    sql_threads = "SELECT id, title FROM threads WHERE user_id = ? ORDER BY id ASC"
-    threads = db.query(sql_threads, [user_id])
-
-    sql_messages = """SELECT messages.content, messages.sent_at, threads.id AS thread_id, threads.title AS thread_title
-                    FROM messages JOIN threads ON messages.thread_id = threads.id
-                    WHERE messages.user_id = ?
-                    ORDER BY messages.sent_at"""
-    messages = db.query(sql_messages, [user_id])
-
-    sql_thread_count = "SELECT COUNT(threads.id) as count FROM threads WHERE user_id = ?"
-    thread_count = db.query(sql_thread_count, [user_id])[0]["count"]
-    sql_message_count = "SELECT COUNT(messages.id) as count FROM messages WHERE user_id = ?"
-    message_count = db.query(sql_message_count, [user_id])[0]["count"]
-
-    return render_template("user_profile.html", user = user[0], threads = threads, 
-                           messages = messages, thread_count = thread_count, message_count = message_count)
+    user = users.get_user(user_id)
+    threads = users.user_threads(user_id)
+    messages = users.user_messages(user_id)
+    thread_count = users.user_thread_count(user_id)
+    message_count = users.user_message_count(user_id)
+    if not user:
+        abort(404)
+    return render_template("user_profile.html", user=user, threads=threads, messages=messages, thread_count=thread_count, message_count=message_count)
